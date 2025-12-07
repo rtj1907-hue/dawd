@@ -5,7 +5,6 @@ local CoreGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
 local lplayer = Players.LocalPlayer
 
--- Notification
 CoreGui:SetCore("SendNotification", {
     Title = "Script Made By",
     Text = "GhostPlayer",
@@ -83,9 +82,6 @@ ReturnButton.TextColor3 = Color3.new(1,1,1)
 ReturnButton.Text = "回到存檔點"
 ReturnButton.TextScaled = true
 
-------------------------------------------------------
--- 🔥 新增：快捷鍵 UI
-------------------------------------------------------
 local HotkeyTPBox = Instance.new("TextBox")
 HotkeyTPBox.Parent = Frame
 HotkeyTPBox.BackgroundColor3 = Color3.new(0,0,0)
@@ -108,17 +104,11 @@ HotkeyReturnBox.TextColor3 = Color3.new(1,1,1)
 HotkeyReturnBox.Text = "回存檔"
 HotkeyReturnBox.TextScaled = true
 
-------------------------------------------------------
--- Variables
-------------------------------------------------------
 local TeleportMode = "瞬移"
 local SavedCFrame = nil
 local HotkeyTP = Enum.KeyCode.T
 local HotkeyReturn = Enum.KeyCode.Y
 
-------------------------------------------------------
--- 🔥 新增：快捷鍵變更功能
-------------------------------------------------------
 local function SetHotkey(box, assignFunc)
     box.FocusLost:Connect(function()
         local txt = box.Text:upper()
@@ -139,9 +129,6 @@ SetHotkey(HotkeyReturnBox, function(key)
     HotkeyReturn = key
 end)
 
-------------------------------------------------------
--- Mode Dropdown
-------------------------------------------------------
 ModeDropdown.MouseButton1Click:Connect(function()
     if TeleportMode == "瞬移" then
         TeleportMode = "平滑"
@@ -152,9 +139,6 @@ ModeDropdown.MouseButton1Click:Connect(function()
     end
 end)
 
-------------------------------------------------------
--- Get player function
-------------------------------------------------------
 local function GetPlayer(str)
     str = str:lower()
     local found = {}
@@ -186,9 +170,6 @@ local function GetPlayer(str)
     return found
 end
 
-------------------------------------------------------
--- Teleport logic
-------------------------------------------------------
 local function TeleportToCFrame(cframe)
     local myChar = lplayer.Character
     local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
@@ -212,9 +193,6 @@ local function TeleportToPlayer(targetPlayer)
     end
 end
 
-------------------------------------------------------
--- Buttons
-------------------------------------------------------
 TPButton.MouseButton1Click:Connect(function()
     local targets = GetPlayer(TextBox.Text)
     if #targets > 0 then
@@ -238,9 +216,6 @@ ReturnButton.MouseButton1Click:Connect(function()
     end
 end)
 
-------------------------------------------------------
--- Hotkey Support
-------------------------------------------------------
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.UserInputType == Enum.UserInputType.Keyboard then
