@@ -1,0 +1,257 @@
+-- Services
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("StarterGui")
+local UserInputService = game:GetService("UserInputService")
+local lplayer = Players.LocalPlayer
+
+-- Notification
+CoreGui:SetCore("SendNotification", {
+    Title = "Script Made By",
+    Text = "GhostPlayer",
+    Icon = "rbxassetid://29819383",
+    Duration = 2,
+})
+
+-- UI
+local TeleportGui = Instance.new("ScreenGui")
+TeleportGui.Name = "TeleportGui"
+TeleportGui.Parent = game.CoreGui
+
+local Frame = Instance.new("Frame")
+Frame.Parent = TeleportGui
+Frame.BackgroundColor3 = Color3.new(0,0,0)
+Frame.BorderColor3 = Color3.new(1,1,1)
+Frame.BorderSizePixel = 2
+Frame.Position = UDim2.new(0.63,0,0.1,0)
+Frame.Size = UDim2.new(0.16,0,0.45,0)
+Frame.Active = true
+Frame.Draggable = true
+
+local TextBox = Instance.new("TextBox")
+TextBox.Parent = Frame
+TextBox.BackgroundColor3 = Color3.new(0,0,0)
+TextBox.BorderColor3 = Color3.new(1,1,1)
+TextBox.BorderSizePixel = 1
+TextBox.Position = UDim2.new(0.05,0,0.05,0)
+TextBox.Size = UDim2.new(0.9,0,0.15,0)
+TextBox.TextColor3 = Color3.new(1,1,1)
+TextBox.Text = "Player Name / all / others / random"
+TextBox.TextScaled = true
+
+local TPButton = Instance.new("TextButton")
+TPButton.Parent = Frame
+TPButton.BackgroundColor3 = Color3.new(0,0,0)
+TPButton.BorderColor3 = Color3.new(1,1,1)
+TPButton.BorderSizePixel = 1
+TPButton.Position = UDim2.new(0.1,0,0.25,0)
+TPButton.Size = UDim2.new(0.8,0,0.12,0)
+TPButton.TextColor3 = Color3.new(1,1,1)
+TPButton.Text = "傳送"
+TPButton.TextScaled = true
+
+local ModeDropdown = Instance.new("TextButton")
+ModeDropdown.Parent = Frame
+ModeDropdown.BackgroundColor3 = Color3.new(0,0,0)
+ModeDropdown.BorderColor3 = Color3.new(1,1,1)
+ModeDropdown.BorderSizePixel = 1
+ModeDropdown.Position = UDim2.new(0.05,0,0.40,0)
+ModeDropdown.Size = UDim2.new(0.9,0,0.1,0)
+ModeDropdown.TextColor3 = Color3.new(1,1,1)
+ModeDropdown.Text = "瞬移模式"
+ModeDropdown.TextScaled = true
+
+local SaveButton = Instance.new("TextButton")
+SaveButton.Parent = Frame
+SaveButton.BackgroundColor3 = Color3.new(0,0,0)
+SaveButton.BorderColor3 = Color3.new(1,1,1)
+SaveButton.BorderSizePixel = 1
+SaveButton.Position = UDim2.new(0.05,0,0.53,0)
+SaveButton.Size = UDim2.new(0.4,0,0.1,0)
+SaveButton.TextColor3 = Color3.new(1,1,1)
+SaveButton.Text = "存檔點"
+SaveButton.TextScaled = true
+
+local ReturnButton = Instance.new("TextButton")
+ReturnButton.Parent = Frame
+ReturnButton.BackgroundColor3 = Color3.new(0,0,0)
+ReturnButton.BorderColor3 = Color3.new(1,1,1)
+ReturnButton.BorderSizePixel = 1
+ReturnButton.Position = UDim2.new(0.55,0,0.53,0)
+ReturnButton.Size = UDim2.new(0.4,0,0.1,0)
+ReturnButton.TextColor3 = Color3.new(1,1,1)
+ReturnButton.Text = "回到存檔點"
+ReturnButton.TextScaled = true
+
+------------------------------------------------------
+-- 🔥 新增：快捷鍵 UI
+------------------------------------------------------
+local HotkeyTPBox = Instance.new("TextBox")
+HotkeyTPBox.Parent = Frame
+HotkeyTPBox.BackgroundColor3 = Color3.new(0,0,0)
+HotkeyTPBox.BorderColor3 = Color3.new(1,1,1)
+HotkeyTPBox.BorderSizePixel = 1
+HotkeyTPBox.Position = UDim2.new(0.05,0,0.67,0)
+HotkeyTPBox.Size = UDim2.new(0.4,0,0.1,0)
+HotkeyTPBox.TextColor3 = Color3.new(1,1,1)
+HotkeyTPBox.Text = "傳送鍵"
+HotkeyTPBox.TextScaled = true
+
+local HotkeyReturnBox = Instance.new("TextBox")
+HotkeyReturnBox.Parent = Frame
+HotkeyReturnBox.BackgroundColor3 = Color3.new(0,0,0)
+HotkeyReturnBox.BorderColor3 = Color3.new(1,1,1)
+HotkeyReturnBox.BorderSizePixel = 1
+HotkeyReturnBox.Position = UDim2.new(0.55,0,0.67,0)
+HotkeyReturnBox.Size = UDim2.new(0.4,0,0.1,0)
+HotkeyReturnBox.TextColor3 = Color3.new(1,1,1)
+HotkeyReturnBox.Text = "回存檔"
+HotkeyReturnBox.TextScaled = true
+
+------------------------------------------------------
+-- Variables
+------------------------------------------------------
+local TeleportMode = "瞬移"
+local SavedCFrame = nil
+local HotkeyTP = Enum.KeyCode.T
+local HotkeyReturn = Enum.KeyCode.Y
+
+------------------------------------------------------
+-- 🔥 新增：快捷鍵變更功能
+------------------------------------------------------
+local function SetHotkey(box, assignFunc)
+    box.FocusLost:Connect(function()
+        local txt = box.Text:upper()
+        if Enum.KeyCode[txt] then
+            assignFunc(Enum.KeyCode[txt])
+            box.Text = "已設定:" .. txt
+        else
+            box.Text = "無效按鍵"
+        end
+    end)
+end
+
+SetHotkey(HotkeyTPBox, function(key)
+    HotkeyTP = key
+end)
+
+SetHotkey(HotkeyReturnBox, function(key)
+    HotkeyReturn = key
+end)
+
+------------------------------------------------------
+-- Mode Dropdown
+------------------------------------------------------
+ModeDropdown.MouseButton1Click:Connect(function()
+    if TeleportMode == "瞬移" then
+        TeleportMode = "平滑"
+        ModeDropdown.Text = "平滑瞬移"
+    else
+        TeleportMode = "瞬移"
+        ModeDropdown.Text = "瞬移模式"
+    end
+end)
+
+------------------------------------------------------
+-- Get player function
+------------------------------------------------------
+local function GetPlayer(str)
+    str = str:lower()
+    local found = {}
+
+    if str == "all" then
+        for _,v in ipairs(Players:GetPlayers()) do table.insert(found,v) end
+
+    elseif str == "others" then
+        for _,v in ipairs(Players:GetPlayers()) do
+            if v ~= lplayer then table.insert(found,v) end
+        end
+
+    elseif str == "me" then
+        table.insert(found,lplayer)
+
+    elseif str == "random" then
+        local list = Players:GetPlayers()
+        for i=#list,1,-1 do if list[i]==lplayer then table.remove(list,i) end end
+        if #list > 0 then table.insert(found, list[math.random(#list)]) end
+
+    else
+        for _,v in ipairs(Players:GetPlayers()) do
+            if v.Name:lower():sub(1,#str)==str 
+            or (v.DisplayName and v.DisplayName:lower():sub(1,#str)==str) then
+                table.insert(found,v)
+            end
+        end
+    end
+    return found
+end
+
+------------------------------------------------------
+-- Teleport logic
+------------------------------------------------------
+local function TeleportToCFrame(cframe)
+    local myChar = lplayer.Character
+    local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    local humanoid = myChar and myChar:FindFirstChildOfClass("Humanoid")
+
+    if myRoot and humanoid and cframe then
+        if TeleportMode == "瞬移" then
+            myRoot.CFrame = cframe
+        else
+            TweenService:Create(myRoot, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {CFrame = cframe}):Play()
+        end
+    end
+end
+
+local function TeleportToPlayer(targetPlayer)
+    if targetPlayer and targetPlayer.Character then
+        local root = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if root then
+            TeleportToCFrame(root.CFrame + Vector3.new(0,3,0))
+        end
+    end
+end
+
+------------------------------------------------------
+-- Buttons
+------------------------------------------------------
+TPButton.MouseButton1Click:Connect(function()
+    local targets = GetPlayer(TextBox.Text)
+    if #targets > 0 then
+        TeleportToPlayer(targets[1])
+    end
+end)
+
+SaveButton.MouseButton1Click:Connect(function()
+    local root = lplayer.Character and lplayer.Character:FindFirstChild("HumanoidRootPart")
+    if root then
+        SavedCFrame = root.CFrame
+        CoreGui:SetCore("SendNotification",{Title="存檔點",Text="已保存位置！",Duration=2})
+    end
+end)
+
+ReturnButton.MouseButton1Click:Connect(function()
+    if SavedCFrame then
+        TeleportToCFrame(SavedCFrame)
+    else
+        CoreGui:SetCore("SendNotification",{Title="錯誤",Text="尚未設定存檔點",Duration=2})
+    end
+end)
+
+------------------------------------------------------
+-- Hotkey Support
+------------------------------------------------------
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+
+        if input.KeyCode == HotkeyTP then
+            local targets = GetPlayer(TextBox.Text)
+            if #targets > 0 then TeleportToPlayer(targets[1]) end
+        end
+
+        if input.KeyCode == HotkeyReturn then
+            if SavedCFrame then TeleportToCFrame(SavedCFrame) end
+        end
+    end
+end)
