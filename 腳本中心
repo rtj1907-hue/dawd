@@ -47,7 +47,7 @@ Tab1:CreateButton({
 Tab1:CreateButton({
     Name = "傳送腳本",
     Callback = function()
-        LoadScript("傳送腳本", "https://github.com/rtj1907-hue/dawd/blob/main/tp")
+        LoadScript("傳送腳本", "https://raw.githubusercontent.com/rtj1907-hue/dawd/refs/heads/main/tp")
     end
 })
 local Tab2 = Window:CreateTab("幸運方塊")
