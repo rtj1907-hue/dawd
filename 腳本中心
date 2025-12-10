@@ -7,18 +7,32 @@ local Window = Rayfield:CreateWindow({
     KeySystem = false
 })
 local LoadedScripts = {}
-
+local AllowRepeat = {
+	["垃圾桶"] = true,
+    ["飛人"] = true,       
+    ["傳送腳本"] = false,    
+     
+    ["FE指令"] = false,  
+    ["碰撞箱"] = false,     
+    ["無限幸運方塊"] = false,
+    ["飛行"] = false,
+}
 local function LoadScript(name, url)
-    if LoadedScripts[name] then
+    if LoadedScripts[name] and not AllowRepeat[name] then
         warn(name .. " 已經載入過了！")
         return
     end
+
     local success, err = pcall(function()
         loadstring(game:HttpGet(url))()
     end)
+
     if success then
         print(name .. " 載入成功")
-        LoadedScripts[name] = true
+
+        if not AllowRepeat[name] then
+            LoadedScripts[name] = true
+        end
     else
         warn(name .. " 載入失敗:", err)
     end
