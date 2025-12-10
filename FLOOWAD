@@ -93,10 +93,19 @@ UIListLayout.Padding = UDim.new(0,2)
 
 local CheckBoxes = {}
 local function UpdatePlayerList()
+    -- 保存舊勾選狀態
+    local oldSelections = {}
+    for player, check in pairs(CheckBoxes) do
+        oldSelections[player.Name] = check()
+    end
+
+    -- 清空舊 UI
     for _,v in pairs(ScrollFrame:GetChildren()) do
         if v:IsA("TextButton") then v:Destroy() end
     end
     CheckBoxes = {}
+
+    -- 重建 UI
     for _,p in pairs(Players:GetPlayers()) do
         if p ~= lplayer then
             local btn = Instance.new("TextButton")
@@ -107,14 +116,19 @@ local function UpdatePlayerList()
             btn.BackgroundColor3 = Color3.new(0,0,0)
             btn.TextScaled = true
             btn.AutoButtonColor = false
-            local selected = false
+
+            local selected = oldSelections[p.Name] or false
+            if selected then btn.BackgroundColor3 = Color3.fromRGB(0,120,0) end
+
             btn.MouseButton1Click:Connect(function()
                 selected = not selected
                 btn.BackgroundColor3 = selected and Color3.fromRGB(0,120,0) or Color3.new(0,0,0)
             end)
+
             CheckBoxes[p] = function() return selected end
         end
     end
+
     ScrollFrame.CanvasSize = UDim2.new(0,0,0,#Players:GetPlayers()*32)
 end
 UpdatePlayerList()
@@ -142,10 +156,10 @@ local function SkidFling(TargetPlayer)
     if not (Character and Humanoid and RootPart) then return end
 
     local TCharacter = TargetPlayer.Character
-    local THumanoid = TCharacter:FindFirstChildOfClass("Humanoid")
+    local THumanoid = TCharacter and TCharacter:FindFirstChildOfClass("Humanoid")
     local TRootPart = THumanoid and THumanoid.RootPart
-    local THead = TCharacter:FindFirstChild("Head")
-    local Accessory = TCharacter:FindFirstChildOfClass("Accessory")
+    local THead = TCharacter and TCharacter:FindFirstChild("Head")
+    local Accessory = TCharacter and TCharacter:FindFirstChildOfClass("Accessory")
     local Handle = Accessory and Accessory:FindFirstChild("Handle")
 
     if RootPart.Velocity.Magnitude < 50 then
@@ -160,8 +174,6 @@ local function SkidFling(TargetPlayer)
         workspace.CurrentCamera.CameraSubject = THumanoid
     end
 
-    if not TCharacter:FindFirstChildWhichIsA("BasePart") then return end
-
     local FPos = function(BasePart, Pos, Ang)
         RootPart.CFrame = CFrame.new(BasePart.Position) * Pos * Ang
         Character:SetPrimaryPartCFrame(CFrame.new(BasePart.Position) * Pos * Ang)
@@ -170,9 +182,8 @@ local function SkidFling(TargetPlayer)
     end
 
     local SFBasePart = function(BasePart)
-        local TimeToWait = 2
-        local Time = tick()
         local Angle = 0
+        local startTime = tick()
         repeat
             if RootPart and THumanoid then
                 if BasePart.Velocity.Magnitude < 50 then
@@ -188,10 +199,9 @@ local function SkidFling(TargetPlayer)
                     task.wait()
                 end
             else break end
-        until BasePart.Velocity.Magnitude>500 or not getgenv().flingloop
+        until BasePart.Velocity.Magnitude>500 or not getgenv().flingloop or tick()-startTime > 5
     end
 
-    workspace.FallenPartsDestroyHeight = 0/0
     local BV = Instance.new("BodyVelocity")
     BV.Name = "EpixVel"
     BV.Parent = RootPart
@@ -234,26 +244,41 @@ end
 -- ================================
 -- 飛人主迴圈
 -- ================================
+local maxDistance = 5000
 local function ActiveAutoFling()
     getgenv().flingloop = true
-    while getgenv().flingloop do
+    local currentIndex = 1
+    repeat
         local Targets = GetSelectedPlayers()
-        if #Targets == 0 then table.insert(Targets, TextBox.Text) end
+        if #Targets == 0 and TextBox.Text ~= "" then
+            local list = GetPlayer(TextBox.Text)
+            if #list>0 then table.insert(Targets,list[1]) end
+        end
 
-        for _,x in pairs(Targets) do
-            local targetPlayer
-            if typeof(x) == "string" then
-                local list = GetPlayer(x)
-                if #list>0 then targetPlayer = list[1] end
-            else
-                targetPlayer = x
-            end
-            if targetPlayer and targetPlayer~=lplayer then
+        if #Targets > 0 then
+            local targetPlayer = Targets[currentIndex]
+            if targetPlayer and targetPlayer ~= lplayer then
+                local TargetCharacter = targetPlayer.Character
+                local MyCharacter = lplayer.Character
+                local MyRoot = MyCharacter and MyCharacter:FindFirstChild("HumanoidRootPart")
+                local TargetRoot = TargetCharacter and TargetCharacter:FindFirstChild("HumanoidRootPart")
+                
+                if TargetRoot and MyRoot then
+                    local distance = (TargetRoot.Position - MyRoot.Position).Magnitude
+                    if distance > maxDistance then
+                        currentIndex = currentIndex % #Targets + 1
+                        task.wait(0.1)
+                        continue
+                    end
+                end
+
                 pcall(function() SkidFling(targetPlayer) end)
+                currentIndex = currentIndex % #Targets + 1
+                task.wait(0.1)
             end
         end
-        task.wait()
-    end
+        task.wait(0.1)
+    until not getgenv().flingloop
 end
 
 -- 按鈕事件
@@ -261,7 +286,7 @@ TextButton.MouseButton1Click:Connect(function()
     local selected = GetSelectedPlayers()
     local targetText = TextBox.Text
 
-    if TextButton.Text == "自動飛人" and (targetText ~= lplayer.Name or #selected > 0) then
+    if TextButton.Text == "自動飛人" and (#selected > 0 or targetText ~= lplayer.Name) then
         TextButton.Text = "關閉自動飛人"
         task.spawn(ActiveAutoFling)
     else
