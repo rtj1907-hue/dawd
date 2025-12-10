@@ -185,9 +185,9 @@ local function SkidFling(TargetPlayer)
             if RootPart and THumanoid then
                 if BasePart.Velocity.Magnitude < 50 then
                     Angle = Angle + 100
-                    FPos(BasePart, CFrame.new(0,1.5,0)+THumanoid.MoveDirection*BasePart.Velocity.Magnitude/1.25, CFrame.Angles(math.rad(Angle),0,0))
+                    FPos(BasePart, CFrame.new(0,1.5,0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle),0,0))
                     task.wait()
-                    FPos(BasePart, CFrame.new(0,-1.5,0)+THumanoid.MoveDirection*BasePart.Velocity.Magnitude/1.25, CFrame.Angles(math.rad(Angle),0,0))
+                    FPos(BasePart, CFrame.new(0,-1.5,0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle),0,0))
                     task.wait()
                 else
                     FPos(BasePart, CFrame.new(0,1.5,THumanoid.WalkSpeed), CFrame.Angles(math.rad(90),0,0))
@@ -224,6 +224,7 @@ local function SkidFling(TargetPlayer)
     Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated,true)
     workspace.CurrentCamera.CameraSubject = Humanoid
 
+    -- 回原點，避免掉虛空
     repeat
         RootPart.CFrame = getgenv().OldPos*CFrame.new(0,0.5,0)
         Character:SetPrimaryPartCFrame(getgenv().OldPos*CFrame.new(0,0.5,0))
