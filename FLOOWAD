@@ -93,19 +93,16 @@ UIListLayout.Padding = UDim.new(0,2)
 
 local CheckBoxes = {}
 local function UpdatePlayerList()
-    -- 保存舊勾選狀態
     local oldSelections = {}
     for player, check in pairs(CheckBoxes) do
         oldSelections[player.Name] = check()
     end
 
-    -- 清空舊 UI
     for _,v in pairs(ScrollFrame:GetChildren()) do
         if v:IsA("TextButton") then v:Destroy() end
     end
     CheckBoxes = {}
 
-    -- 重建 UI
     for _,p in pairs(Players:GetPlayers()) do
         if p ~= lplayer then
             local btn = Instance.new("TextButton")
@@ -245,9 +242,13 @@ end
 -- 飛人主迴圈
 -- ================================
 local maxDistance = 5000
+local maxLockTime = 10
+
 local function ActiveAutoFling()
     getgenv().flingloop = true
     local currentIndex = 1
+    local lockTimer = 0
+
     repeat
         local Targets = GetSelectedPlayers()
         if #Targets == 0 and TextBox.Text ~= "" then
@@ -257,26 +258,45 @@ local function ActiveAutoFling()
 
         if #Targets > 0 then
             local targetPlayer = Targets[currentIndex]
-            if targetPlayer and targetPlayer ~= lplayer then
-                local TargetCharacter = targetPlayer.Character
-                local MyCharacter = lplayer.Character
-                local MyRoot = MyCharacter and MyCharacter:FindFirstChild("HumanoidRootPart")
-                local TargetRoot = TargetCharacter and TargetCharacter:FindFirstChild("HumanoidRootPart")
-                
-                if TargetRoot and MyRoot then
-                    local distance = (TargetRoot.Position - MyRoot.Position).Magnitude
-                    if distance > maxDistance then
-                        currentIndex = currentIndex % #Targets + 1
-                        task.wait(0.1)
-                        continue
+            local MyCharacter = lplayer.Character
+            local MyRoot = MyCharacter and MyCharacter:FindFirstChild("HumanoidRootPart")
+            local TargetCharacter = targetPlayer and targetPlayer.Character
+            local TargetRoot = TargetCharacter and TargetCharacter:FindFirstChild("HumanoidRootPart")
+
+            local canFling = false
+            if targetPlayer and targetPlayer ~= lplayer and MyRoot and TargetRoot then
+                local distance = (TargetRoot.Position - MyRoot.Position).Magnitude
+                if distance <= maxDistance then
+                    canFling = true
+                    pcall(function() SkidFling(targetPlayer) end)
+                    lockTimer = 0
+                end
+            end
+
+            if not canFling then
+                lockTimer = lockTimer + 0.1
+            end
+
+            currentIndex = currentIndex % #Targets + 1
+        else
+            lockTimer = lockTimer + 0.1
+        end
+
+        if lockTimer >= maxLockTime then
+            local MyCharacter = lplayer.Character
+            local MyRoot = MyCharacter and MyCharacter:FindFirstChild("HumanoidRootPart")
+            if MyRoot and getgenv().OldPos then
+                MyCharacter:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0,0.5,0))
+                for _,x in pairs(MyCharacter:GetChildren()) do
+                    if x:IsA("BasePart") then
+                        x.Velocity = Vector3.new()
+                        x.RotVelocity = Vector3.new()
                     end
                 end
-
-                pcall(function() SkidFling(targetPlayer) end)
-                currentIndex = currentIndex % #Targets + 1
-                task.wait(0.1)
             end
+            lockTimer = 0
         end
+
         task.wait(0.1)
     until not getgenv().flingloop
 end
