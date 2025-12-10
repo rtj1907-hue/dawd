@@ -2,7 +2,6 @@ local CoreGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 local lplayer = Players.LocalPlayer
 
--- 通知
 CoreGui:SetCore("SendNotification", {
     Title = "Script Made By",
     Text = "GhostPlayer",
@@ -10,7 +9,6 @@ CoreGui:SetCore("SendNotification", {
     Duration = 2,
 })
 
--- 玩家搜尋函數
 function GetPlayer(String)
     local Found = {}
     local strl = String:lower()
@@ -36,9 +34,6 @@ function GetPlayer(String)
     return Found
 end
 
--- ================================
--- UI 建立
--- ================================
 local AutoFlingGui = Instance.new("ScreenGui")
 AutoFlingGui.Parent = game.CoreGui
 
@@ -76,7 +71,6 @@ TextButton.TextColor3 = Color3.new(1,1,1)
 TextButton.Text = "自動飛人"
 TextButton.TextScaled = true
 
--- 多目標選單
 local ScrollFrame = Instance.new("ScrollingFrame")
 ScrollFrame.Parent = AutoFlingFrame
 ScrollFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
@@ -142,9 +136,6 @@ local function GetSelectedPlayers()
     return selected
 end
 
--- ================================
--- SkidFling 函數
--- ================================
 local function SkidFling(TargetPlayer)
     local Player = lplayer
     local Character = Player.Character
@@ -224,7 +215,6 @@ local function SkidFling(TargetPlayer)
     Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated,true)
     workspace.CurrentCamera.CameraSubject = Humanoid
 
-    -- 回原點，避免掉虛空
     repeat
         RootPart.CFrame = getgenv().OldPos*CFrame.new(0,0.5,0)
         Character:SetPrimaryPartCFrame(getgenv().OldPos*CFrame.new(0,0.5,0))
@@ -239,9 +229,6 @@ local function SkidFling(TargetPlayer)
     until (RootPart.Position - getgenv().OldPos.Position).Magnitude < 25
 end
 
--- ================================
--- 飛人主迴圈
--- ================================
 local maxDistance = 5000
 local maxLockTime = 10
 
@@ -302,7 +289,6 @@ local function ActiveAutoFling()
     until not getgenv().flingloop
 end
 
--- 按鈕事件
 TextButton.MouseButton1Click:Connect(function()
     local selected = GetSelectedPlayers()
     local targetText = TextBox.Text
