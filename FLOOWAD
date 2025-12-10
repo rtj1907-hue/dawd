@@ -162,9 +162,9 @@ local function SkidFling(TargetPlayer)
         workspace.CurrentCamera.CameraSubject = THumanoid
     end
 
-    local FPos = function(BasePart, Pos, Ang)
-        RootPart.CFrame = CFrame.new(BasePart.Position) * Pos * Ang
-        Character:SetPrimaryPartCFrame(CFrame.new(BasePart.Position) * Pos * Ang)
+    local FPos = function(BasePart, Ang)
+        RootPart.CFrame = CFrame.new(BasePart.Position) * Ang
+        Character:SetPrimaryPartCFrame(CFrame.new(BasePart.Position) * Ang)
         RootPart.Velocity = Vector3.new(2e8, 2e8*10, 2e8)
         RootPart.RotVelocity = Vector3.new(2e9,2e9,2e9)
     end
@@ -174,18 +174,11 @@ local function SkidFling(TargetPlayer)
         local startTime = tick()
         repeat
             if RootPart and THumanoid then
-                if BasePart.Velocity.Magnitude < 50 then
-                    Angle = Angle + 100
-                    FPos(BasePart, CFrame.new(0,1.5,0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle),0,0))
-                    task.wait()
-                    FPos(BasePart, CFrame.new(0,-1.5,0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle),0,0))
-                    task.wait()
-                else
-                    FPos(BasePart, CFrame.new(0,1.5,THumanoid.WalkSpeed), CFrame.Angles(math.rad(90),0,0))
-                    task.wait()
-                    FPos(BasePart, CFrame.new(0,-1.5,-THumanoid.WalkSpeed), CFrame.Angles(0,0,0))
-                    task.wait()
-                end
+                Angle = Angle + 100
+                FPos(BasePart, CFrame.Angles(math.rad(Angle),0,0))
+                task.wait()
+                FPos(BasePart, CFrame.Angles(math.rad(Angle),0,0))
+                task.wait()
             else break end
         until BasePart.Velocity.Magnitude>500 or not getgenv().flingloop or tick()-startTime > 5
     end
