@@ -37,6 +37,7 @@ Tab1:CreateButton({
     Callback = function()
         LoadScript("飛人", "https://raw.githubusercontent.com/rtj1907-hue/-/refs/heads/main/主要功能.lua")
     end
+	})
 Tab1:CreateButton({
     Name = "傳送腳本",
     Callback = function()
@@ -52,7 +53,7 @@ Tab1:CreateButton({
 Tab1:CreateButton({
     Name = "飛行",
     Callback = function()
-        LoadScript("飛行", "https://gist.githubusercontent.com/meozoneYT/bf037dff9f0a70017304ddd67fdcd370/raw/e14e74f425b060df523343cf30b787074eb3c5d2/arceus%2520x%2520fly%25202%2520obflucator")
+        LoadScript("飛行", "https://gist.githubusercontent.com/meozoneYT/949a2c8c33bfff565b6ad58c1fb47dea/raw/9212fadff6799ba58dd1d507d3fcadadaeb3bec9/arceus%2520x%2520fly2.1")
     end
 })
 local Tab2 = Window:CreateTab("幸運方塊")
