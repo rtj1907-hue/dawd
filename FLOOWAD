@@ -1,0 +1,271 @@
+local CoreGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
+local lplayer = Players.LocalPlayer
+
+-- 通知
+CoreGui:SetCore("SendNotification", {
+    Title = "Script Made By",
+    Text = "GhostPlayer",
+    Icon = "rbxassetid://29819383",
+    Duration = 2,
+})
+
+-- 玩家搜尋函數
+function GetPlayer(String)
+    local Found = {}
+    local strl = String:lower()
+    if strl == "all" then
+        for i,v in pairs(Players:GetPlayers()) do
+            table.insert(Found,v)
+        end
+    elseif strl == "others" then
+        for i,v in pairs(Players:GetPlayers()) do
+            if v.Name ~= lplayer.Name then
+                table.insert(Found,v)
+            end
+        end 
+    elseif strl == "me" then
+        table.insert(Found,lplayer)
+    else
+        for i,v in pairs(Players:GetPlayers()) do
+            if v.Name:lower():sub(1, #String) == String:lower() then
+                table.insert(Found,v)
+            end
+        end 
+    end
+    return Found
+end
+
+-- ================================
+-- UI 建立
+-- ================================
+local AutoFlingGui = Instance.new("ScreenGui")
+AutoFlingGui.Parent = game.CoreGui
+
+local AutoFlingFrame = Instance.new("Frame")
+AutoFlingFrame.Parent = AutoFlingGui
+AutoFlingFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+AutoFlingFrame.BorderColor3 = Color3.new(1,1,1)
+AutoFlingFrame.BorderSizePixel = 2
+AutoFlingFrame.Position = UDim2.new(0.63, 0, 0.1, 0)
+AutoFlingFrame.Size = UDim2.new(0.16, 0, 0.5, 0)
+AutoFlingFrame.Active = true
+AutoFlingFrame.Draggable = true
+
+local TextBox = Instance.new("TextBox")
+TextBox.Parent = AutoFlingFrame
+TextBox.BackgroundColor3 = Color3.new(0, 0, 0)
+TextBox.BorderColor3 = Color3.new(1,1,1)
+TextBox.BorderSizePixel = 1
+TextBox.Position = UDim2.new(0.1, 0, 0.05, 0)
+TextBox.Size = UDim2.new(0.8, 0, 0.15, 0)
+TextBox.TextColor3 = Color3.new(1,1,1)
+TextBox.Font = Enum.Font.SourceSansLight
+TextBox.TextScaled = true
+TextBox.Text = "玩家ID"
+TextBox.TextWrapped = true
+
+local TextButton = Instance.new("TextButton")
+TextButton.Parent = AutoFlingFrame
+TextButton.BackgroundColor3 = Color3.new(0, 0, 0)
+TextButton.BorderColor3 = Color3.new(1,1,1)
+TextButton.BorderSizePixel = 1
+TextButton.Position = UDim2.new(0.2,0,0.8,0)
+TextButton.Size = UDim2.new(0.6,0,0.15,0)
+TextButton.TextColor3 = Color3.new(1,1,1)
+TextButton.Text = "自動飛人"
+TextButton.TextScaled = true
+
+-- 多目標選單
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Parent = AutoFlingFrame
+ScrollFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+ScrollFrame.BorderSizePixel = 1
+ScrollFrame.Position = UDim2.new(0.05,0,0.25,0)
+ScrollFrame.Size = UDim2.new(0.9,0,0.5,0)
+ScrollFrame.CanvasSize = UDim2.new(0,0,0,0)
+ScrollFrame.ScrollBarThickness = 6
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Parent = ScrollFrame
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0,2)
+
+local CheckBoxes = {}
+local function UpdatePlayerList()
+    for _,v in pairs(ScrollFrame:GetChildren()) do
+        if v:IsA("TextButton") then v:Destroy() end
+    end
+    CheckBoxes = {}
+    for _,p in pairs(Players:GetPlayers()) do
+        if p ~= lplayer then
+            local btn = Instance.new("TextButton")
+            btn.Parent = ScrollFrame
+            btn.Size = UDim2.new(1,0,0,30)
+            btn.Text = p.Name
+            btn.TextColor3 = Color3.new(1,1,1)
+            btn.BackgroundColor3 = Color3.new(0,0,0)
+            btn.TextScaled = true
+            btn.AutoButtonColor = false
+            local selected = false
+            btn.MouseButton1Click:Connect(function()
+                selected = not selected
+                btn.BackgroundColor3 = selected and Color3.fromRGB(0,120,0) or Color3.new(0,0,0)
+            end)
+            CheckBoxes[p] = function() return selected end
+        end
+    end
+    ScrollFrame.CanvasSize = UDim2.new(0,0,0,#Players:GetPlayers()*32)
+end
+UpdatePlayerList()
+Players.PlayerAdded:Connect(UpdatePlayerList)
+Players.PlayerRemoving:Connect(UpdatePlayerList)
+
+local function GetSelectedPlayers()
+    local selected = {}
+    for p,check in pairs(CheckBoxes) do
+        if check() then
+            table.insert(selected,p)
+        end
+    end
+    return selected
+end
+
+-- ================================
+-- SkidFling 函數
+-- ================================
+local function SkidFling(TargetPlayer)
+    local Player = lplayer
+    local Character = Player.Character
+    local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
+    local RootPart = Humanoid and Humanoid.RootPart
+    if not (Character and Humanoid and RootPart) then return end
+
+    local TCharacter = TargetPlayer.Character
+    local THumanoid = TCharacter:FindFirstChildOfClass("Humanoid")
+    local TRootPart = THumanoid and THumanoid.RootPart
+    local THead = TCharacter:FindFirstChild("Head")
+    local Accessory = TCharacter:FindFirstChildOfClass("Accessory")
+    local Handle = Accessory and Accessory:FindFirstChild("Handle")
+
+    if RootPart.Velocity.Magnitude < 50 then
+        getgenv().OldPos = RootPart.CFrame
+    end
+
+    if THead then
+        workspace.CurrentCamera.CameraSubject = THead
+    elseif Handle then
+        workspace.CurrentCamera.CameraSubject = Handle
+    elseif THumanoid and TRootPart then
+        workspace.CurrentCamera.CameraSubject = THumanoid
+    end
+
+    if not TCharacter:FindFirstChildWhichIsA("BasePart") then return end
+
+    local FPos = function(BasePart, Pos, Ang)
+        RootPart.CFrame = CFrame.new(BasePart.Position) * Pos * Ang
+        Character:SetPrimaryPartCFrame(CFrame.new(BasePart.Position) * Pos * Ang)
+        RootPart.Velocity = Vector3.new(2e8, 2e8*10, 2e8)
+        RootPart.RotVelocity = Vector3.new(2e9,2e9,2e9)
+    end
+
+    local SFBasePart = function(BasePart)
+        local TimeToWait = 2
+        local Time = tick()
+        local Angle = 0
+        repeat
+            if RootPart and THumanoid then
+                if BasePart.Velocity.Magnitude < 50 then
+                    Angle = Angle + 100
+                    FPos(BasePart, CFrame.new(0,1.5,0)+THumanoid.MoveDirection*BasePart.Velocity.Magnitude/1.25, CFrame.Angles(math.rad(Angle),0,0))
+                    task.wait()
+                    FPos(BasePart, CFrame.new(0,-1.5,0)+THumanoid.MoveDirection*BasePart.Velocity.Magnitude/1.25, CFrame.Angles(math.rad(Angle),0,0))
+                    task.wait()
+                else
+                    FPos(BasePart, CFrame.new(0,1.5,THumanoid.WalkSpeed), CFrame.Angles(math.rad(90),0,0))
+                    task.wait()
+                    FPos(BasePart, CFrame.new(0,-1.5,-THumanoid.WalkSpeed), CFrame.Angles(0,0,0))
+                    task.wait()
+                end
+            else break end
+        until BasePart.Velocity.Magnitude>500 or not getgenv().flingloop
+    end
+
+    workspace.FallenPartsDestroyHeight = 0/0
+    local BV = Instance.new("BodyVelocity")
+    BV.Name = "EpixVel"
+    BV.Parent = RootPart
+    BV.Velocity = Vector3.new(9e8,9e8,9e8)
+    BV.MaxForce = Vector3.new(1/0,1/0,1/0)
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated,false)
+
+    if TRootPart and THead then
+        if (TRootPart.Position - THead.Position).Magnitude > 5 then
+            SFBasePart(THead)
+        else
+            SFBasePart(TRootPart)
+        end
+    elseif TRootPart then
+        SFBasePart(TRootPart)
+    elseif THead then
+        SFBasePart(THead)
+    elseif Handle then
+        SFBasePart(Handle)
+    end
+
+    BV:Destroy()
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated,true)
+    workspace.CurrentCamera.CameraSubject = Humanoid
+
+    repeat
+        RootPart.CFrame = getgenv().OldPos*CFrame.new(0,0.5,0)
+        Character:SetPrimaryPartCFrame(getgenv().OldPos*CFrame.new(0,0.5,0))
+        Humanoid:ChangeState("GettingUp")
+        for _,x in pairs(Character:GetChildren()) do
+            if x:IsA("BasePart") then
+                x.Velocity = Vector3.new()
+                x.RotVelocity = Vector3.new()
+            end
+        end
+        task.wait()
+    until (RootPart.Position - getgenv().OldPos.Position).Magnitude < 25
+end
+
+-- ================================
+-- 飛人主迴圈
+-- ================================
+local function ActiveAutoFling()
+    getgenv().flingloop = true
+    while getgenv().flingloop do
+        local Targets = GetSelectedPlayers()
+        if #Targets == 0 then table.insert(Targets, TextBox.Text) end
+
+        for _,x in pairs(Targets) do
+            local targetPlayer
+            if typeof(x) == "string" then
+                local list = GetPlayer(x)
+                if #list>0 then targetPlayer = list[1] end
+            else
+                targetPlayer = x
+            end
+            if targetPlayer and targetPlayer~=lplayer then
+                pcall(function() SkidFling(targetPlayer) end)
+            end
+        end
+        task.wait()
+    end
+end
+
+-- 按鈕事件
+TextButton.MouseButton1Click:Connect(function()
+    local selected = GetSelectedPlayers()
+    local targetText = TextBox.Text
+
+    if TextButton.Text == "自動飛人" and (targetText ~= lplayer.Name or #selected > 0) then
+        TextButton.Text = "關閉自動飛人"
+        task.spawn(ActiveAutoFling)
+    else
+        TextButton.Text = "自動飛人"
+        getgenv().flingloop = false
+    end
+end)
