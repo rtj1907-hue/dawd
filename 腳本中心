@@ -95,11 +95,11 @@ Tab3:CreateButton({
 })
 
 local Tab4 = Window:CreateTab("其他")
-Tab4:CreateSection("")
+Tab4:CreateSection("其他工具")
 Tab4:CreateButton({
-    Name = "其他工具",
+    Name = "翻譯",
     Callback = function()
-        LoadScript("Misc", "https://你的網址/misc.lua")
+        LoadScript("翻譯", "https://raw.githubusercontent.com/ke9460394-dot/ugik/refs/heads/main/KENNY自动汉化.txt")
     end
 })
 
