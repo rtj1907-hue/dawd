@@ -102,5 +102,10 @@ Tab4:CreateButton({
         LoadScript("翻譯", "https://raw.githubusercontent.com/ke9460394-dot/ugik/refs/heads/main/KENNY自动汉化.txt")
     end
 })
-
+Tab4:CreateButton({
+    Name = "怕邱慶",
+    Callback = function()
+        LoadScript("怕邱慶", "https://raw.githubusercontent.com/rtj1907-hue/-/refs/heads/main/%E6%80%95%E9%82%B1%E6%85%B6")
+    end
+})
 Rayfield:ChangeThemeColor("Accent", Color3.fromRGB(0, 255, 200))
