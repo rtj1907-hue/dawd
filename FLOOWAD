@@ -144,10 +144,12 @@ local function SkidFling(TargetPlayer)
     if not (Character and Humanoid and RootPart) then return end
 
     local TCharacter = TargetPlayer.Character
-    local THumanoid = TCharacter and TCharacter:FindFirstChildOfClass("Humanoid")
+    if not TCharacter then return end
+
+    local THumanoid = TCharacter:FindFirstChildOfClass("Humanoid")
     local TRootPart = THumanoid and THumanoid.RootPart
-    local THead = TCharacter and TCharacter:FindFirstChild("Head")
-    local Accessory = TCharacter and TCharacter:FindFirstChildOfClass("Accessory")
+    local THead = TCharacter:FindFirstChild("Head")
+    local Accessory = TCharacter:FindFirstChildOfClass("Accessory")
     local Handle = Accessory and Accessory:FindFirstChild("Handle")
 
     if RootPart.Velocity.Magnitude < 50 then
@@ -158,36 +160,60 @@ local function SkidFling(TargetPlayer)
         workspace.CurrentCamera.CameraSubject = THead
     elseif Handle then
         workspace.CurrentCamera.CameraSubject = Handle
-    elseif THumanoid and TRootPart then
+    elseif THumanoid then
         workspace.CurrentCamera.CameraSubject = THumanoid
     end
 
-    local FPos = function(BasePart, Ang)
-        RootPart.CFrame = CFrame.new(BasePart.Position) * Ang
-        Character:SetPrimaryPartCFrame(CFrame.new(BasePart.Position) * Ang)
-        RootPart.Velocity = Vector3.new(2e8, 2e8*10, 2e8)
-        RootPart.RotVelocity = Vector3.new(2e9,2e9,2e9)
+    local function FPos(BasePart, Pos, Ang)
+        RootPart.CFrame = CFrame.new(BasePart.Position) * Pos * Ang
+        Character:SetPrimaryPartCFrame(CFrame.new(BasePart.Position) * Pos * Ang)
+        RootPart.Velocity = Vector3.new(2e8, 2e9, 2e8)
+        RootPart.RotVelocity = Vector3.new(2e9, 2e9, 2e9)
     end
 
-    local SFBasePart = function(BasePart)
+    local function SFBasePart(BasePart)
+        local TimeToWait = 2
+        local Time = tick()
         local Angle = 0
-        local startTime = tick()
+
         repeat
             if RootPart and THumanoid then
-                Angle = Angle + 100
-                FPos(BasePart, CFrame.Angles(math.rad(Angle),0,0))
-                task.wait()
-                FPos(BasePart, CFrame.Angles(math.rad(Angle),0,0))
-                task.wait()
-            else break end
-        until BasePart.Velocity.Magnitude>500 or not getgenv().flingloop or tick()-startTime > 5
+                if BasePart.Velocity.Magnitude < 50 then
+                    Angle += 100
+                    FPos(BasePart, CFrame.new(0, 1.5, 0), CFrame.Angles(math.rad(Angle),0,0))
+                    task.wait()
+                    FPos(BasePart, CFrame.new(0,-1.5, 0), CFrame.Angles(math.rad(Angle),0,0))
+                    task.wait()
+                    FPos(BasePart, CFrame.new(2.25,1.5,-2.25), CFrame.Angles(math.rad(Angle),0,0))
+                    task.wait()
+                    FPos(BasePart, CFrame.new(-2.25,-1.5,2.25), CFrame.Angles(math.rad(Angle),0,0))
+                    task.wait()
+                else
+                    FPos(BasePart, CFrame.new(0,1.5,THumanoid.WalkSpeed), CFrame.Angles(math.rad(90),0,0))
+                    task.wait()
+                    FPos(BasePart, CFrame.new(0,-1.5,-THumanoid.WalkSpeed), CFrame.Angles(0,0,0))
+                    task.wait()
+                end
+            else
+                break
+            end
+        until BasePart.Velocity.Magnitude > 500
+            or BasePart.Parent ~= TargetPlayer.Character
+            or TargetPlayer.Parent ~= Players
+            or THumanoid.Sit
+            or Humanoid.Health <= 0
+            or tick() > Time + TimeToWait
+            or not getgenv().flingloop
     end
+
+    workspace.FallenPartsDestroyHeight = 0/0
 
     local BV = Instance.new("BodyVelocity")
     BV.Name = "EpixVel"
     BV.Parent = RootPart
     BV.Velocity = Vector3.new(9e8,9e8,9e8)
     BV.MaxForce = Vector3.new(1/0,1/0,1/0)
+
     Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated,false)
 
     if TRootPart and THead then
@@ -209,18 +235,19 @@ local function SkidFling(TargetPlayer)
     workspace.CurrentCamera.CameraSubject = Humanoid
 
     repeat
-        RootPart.CFrame = getgenv().OldPos*CFrame.new(0,0.5,0)
-        Character:SetPrimaryPartCFrame(getgenv().OldPos*CFrame.new(0,0.5,0))
+        RootPart.CFrame = getgenv().OldPos * CFrame.new(0,.5,0)
+        Character:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0,.5,0))
         Humanoid:ChangeState("GettingUp")
         for _,x in pairs(Character:GetChildren()) do
             if x:IsA("BasePart") then
-                x.Velocity = Vector3.new()
-                x.RotVelocity = Vector3.new()
+                x.Velocity = Vector3.zero
+                x.RotVelocity = Vector3.zero
             end
         end
         task.wait()
     until (RootPart.Position - getgenv().OldPos.Position).Magnitude < 25
 end
+
 
 local maxDistance = 5000
 local maxLockTime = 10
