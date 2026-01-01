@@ -60,6 +60,12 @@ Tab1:CreateButton({
     end
 	})
 Tab1:CreateButton({
+    Name = "超級飛人V2",
+    Callback = function()
+        LoadScript("超級飛人v2", "https://raw.githubusercontent.com/rtj1907-hue/dawd/refs/heads/main/%E9%9D%9E%E4%BA%BAV2")
+    end
+	})
+Tab1:CreateButton({
     Name = "傳送腳本",
     Callback = function()
         LoadScript("傳送腳本", "https://raw.githubusercontent.com/rtj1907-hue/dawd/refs/heads/main/tp")
