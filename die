@@ -21,7 +21,7 @@ local function CreateHL(char)
         local tl = Instance.new("TextLabel", bg)
         tl.Size = UDim2.new(1, 0, 1, 0)
         tl.BackgroundTransparency = 1
-        tl.Text = "🚨 死亡反擊 🚨"
+        tl.Text = "🚨 死拳 🚨"
         tl.TextColor3 = Color3.fromRGB(255, 0, 0)
         tl.TextStrokeTransparency = 0
         tl.TextScaled = true
@@ -31,7 +31,7 @@ local function CreateHL(char)
     task.spawn(function()
         while char and char:FindFirstChild("Direct_HL") do
             task.wait(0.2)
-            -- 只要 Counter 物件消失，就立刻關閉高亮
+           
             if not char:FindFirstChild("Counter") then
                 if hl then hl:Destroy() end
                 if head and head:FindFirstChild("Direct_Tag") then head.Direct_Tag:Destroy() end
@@ -45,29 +45,26 @@ local function ScanForDeath(p)
     local char = p.Character
     if not char then return end
 
-    -- 1. 檢查是否有 Counter 物件
+   
     local counterObj = char:FindFirstChild("Counter")
     if counterObj then
-        -- 2. 【核心排除邏輯】
-        -- 排除常見會誤導的技能名稱 (如果是推人或銀牙的反擊則跳過)
+       
         if counterObj.Name:find("Shove") or char:FindFirstChild("FlowingWater") then
             return 
         end
         
-        -- 3. 排除特定角色 (如果你知道對手是銀牙或惡狼，就不亮燈)
-        -- TSB 裡銀牙通常會有 "Silver" 字樣物件，惡狼有 "Hunter" 或 "Garou"
+       
         if char:FindFirstChild("Hunter") or char:FindFirstChild("WaterStream") then
             return 
         end
 
-        -- 4. 剩下符合條件的，極大機率就是琦玉的死拳
         CreateHL(char)
     end
 end
 
 task.spawn(function()
     while true do
-        task.wait(0.1) -- 快速掃描
+        task.wait(0.1) 
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= LocalPlayer and p.Character then
                 pcall(function() ScanForDeath(p) end)
