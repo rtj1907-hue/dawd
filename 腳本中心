@@ -100,7 +100,12 @@ Tab3:CreateButton({
         LoadScript("垃圾桶", "https://raw.githubusercontent.com/yes1nt/yes/refs/heads/main/Trashcan%20Man")
     end
 })
-
+Tab3:CreateButton({
+    Name = "死拳提示",
+    Callback = function()
+        LoadScript("死拳提示", "https://raw.githubusercontent.com/rtj1907-hue/dawd/refs/heads/main/%E6%AD%BB%E6%8B%B3")
+    end
+})
 local Tab4 = Window:CreateTab("其他")
 Tab4:CreateSection("其他工具")
 Tab4:CreateButton({
