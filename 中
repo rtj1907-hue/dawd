@@ -106,6 +106,12 @@ Tab3:CreateButton({
         LoadScript("死拳提示", "https://raw.githubusercontent.com/rtj1907-hue/dawd/refs/heads/main/%E6%AD%BB%E6%8B%B3")
     end
 })
+Tab3:CreateButton({
+    Name = "tsb虛空",
+    Callback = function()
+        LoadScript("tsb虛空", "https://raw.githubusercontent.com/rtj1907-hue/viod/refs/heads/main/void")
+    end
+})
 local Tab4 = Window:CreateTab("其他")
 Tab4:CreateSection("其他工具")
 Tab4:CreateButton({
