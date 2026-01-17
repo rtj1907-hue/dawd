@@ -1,0 +1,123 @@
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+local Window = Rayfield:CreateWindow({
+    Name = "自製腳本中心",
+    LoadingTitle = "載入中",
+    LoadingSubtitle = "By 未知",
+    ConfigurationSaving = {Enabled = false},
+    KeySystem = false
+})
+local LoadedScripts = {}
+local AllowRepeat = {
+	["垃圾桶"] = true,
+    ["飛人"] = true,  
+    ["怕邱慶"] = true,
+    ["超級飛人"] = false,    
+    ["傳送腳本"] = false,
+    ["FE指令"] = false,  
+    ["碰撞箱"] = false,     
+    ["無限幸運方塊"] = false,
+    ["飛行"] = false,
+}
+local function LoadScript(name, url)
+    if LoadedScripts[name] and not AllowRepeat[name] then
+        warn(name .. " 已經載入過了！")
+        return
+    end
+
+    local success, err = pcall(function()
+        loadstring(game:HttpGet(url))()
+    end)
+
+    if success then
+        print(name .. " 載入成功")
+
+        if not AllowRepeat[name] then
+            LoadedScripts[name] = true
+        end
+    else
+        warn(name .. " 載入失敗:", err)
+    end
+end
+
+local Tab1 = Window:CreateTab("實用腳本")
+Tab1:CreateSection("實用腳本")
+Tab1:CreateButton({
+    Name = "FE指令",
+    Callback = function()
+        LoadScript("FE指令", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")
+    end
+})
+Tab1:CreateButton({
+    Name = "飛人",
+    Callback = function()
+        LoadScript("飛人", "https://raw.githubusercontent.com/rtj1907-hue/-/refs/heads/main/主要功能.lua")
+    end
+	})
+Tab1:CreateButton({
+    Name = "超級飛人",
+    Callback = function()
+        LoadScript("超級飛人", "https://raw.githubusercontent.com/rtj1907-hue/dawd/refs/heads/main/%E9%9D%9E%E4%BA%BA")
+    end
+	})
+Tab1:CreateButton({
+    Name = "超級飛人V2",
+    Callback = function()
+        LoadScript("超級飛人v2", "https://raw.githubusercontent.com/rtj1907-hue/dawd/refs/heads/main/%E9%9D%9E%E4%BA%BAV2")
+    end
+	})
+Tab1:CreateButton({
+    Name = "傳送腳本",
+    Callback = function()
+        LoadScript("傳送腳本", "https://raw.githubusercontent.com/rtj1907-hue/dawd/refs/heads/main/tp")
+    end
+})
+Tab1:CreateButton({
+    Name = "碰撞箱",
+    Callback = function()
+        LoadScript("碰撞箱", "https://raw.githubusercontent.com/rtj1907-hue/dawd/refs/heads/main/README.md")
+    end
+})
+Tab1:CreateButton({
+    Name = "飛行",
+    Callback = function()
+        LoadScript("飛行", "https://gist.githubusercontent.com/meozoneYT/949a2c8c33bfff565b6ad58c1fb47dea/raw/9212fadff6799ba58dd1d507d3fcadadaeb3bec9/arceus%2520x%2520fly2.1")
+    end
+})
+local Tab2 = Window:CreateTab("幸運方塊")
+Tab2:CreateSection("")
+Tab2:CreateButton({
+    Name = "無限幸運方塊",
+    Callback = function()
+        LoadScript("無限幸運方塊", "https://raw.githubusercontent.com/AppleScript001/-LUCKY-BLOCKS-Battlegrounds--/main/README.md")
+    end
+})
+
+local Tab3 = Window:CreateTab("最強戰場")
+Tab3:CreateSection("")
+Tab3:CreateButton({
+    Name = "垃圾桶",
+    Callback = function()
+        LoadScript("垃圾桶", "https://raw.githubusercontent.com/yes1nt/yes/refs/heads/main/Trashcan%20Man")
+    end
+})
+Tab3:CreateButton({
+    Name = "死拳提示",
+    Callback = function()
+        LoadScript("死拳提示", "https://raw.githubusercontent.com/rtj1907-hue/dawd/refs/heads/main/%E6%AD%BB%E6%8B%B3")
+    end
+})
+local Tab4 = Window:CreateTab("其他")
+Tab4:CreateSection("其他工具")
+Tab4:CreateButton({
+    Name = "翻譯",
+    Callback = function()
+        LoadScript("翻譯", "https://raw.githubusercontent.com/ke9460394-dot/ugik/refs/heads/main/KENNY自动汉化.txt")
+    end
+})
+Tab4:CreateButton({
+    Name = "怕邱慶",
+    Callback = function()
+        LoadScript("怕邱慶", "https://raw.githubusercontent.com/rtj1907-hue/-/refs/heads/main/%E6%80%95%E9%82%B1%E6%85%B6")
+    end
+})
+Rayfield:ChangeThemeColor("Accent", Color3.fromRGB(0, 255, 200))
