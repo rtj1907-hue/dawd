@@ -127,3 +127,11 @@ Tab4:CreateButton({
     end
 })
 Rayfield:ChangeThemeColor("Accent", Color3.fromRGB(0, 255, 200))
+local Tab5 = Window:CreateTab("越獄")
+Tab4:CreateSection("越獄")
+Tab4:CreateButton({
+    Name = "防雷射",
+    Callback = function()
+        LoadScript("防雷射", "https://raw.githubusercontent.com/rtj1907-hue/viod/refs/heads/main/%E9%9B%B7%E5%B0%84")
+    end
+})
