@@ -115,6 +115,12 @@ Tab3:CreateButton({
 local Tab4 = Window:CreateTab("其他")
 Tab4:CreateSection("其他工具")
 Tab4:CreateButton({
+    Name = "自瞄",
+    Callback = function()
+        LoadScript("自瞄", "https://raw.githubusercontent.com/rtj1907-hue/viod/refs/heads/main/aimbot")
+    end
+})
+Tab4:CreateButton({
     Name = "翻譯",
     Callback = function()
         LoadScript("翻譯", "https://raw.githubusercontent.com/ke9460394-dot/ugik/refs/heads/main/KENNY自动汉化.txt")
